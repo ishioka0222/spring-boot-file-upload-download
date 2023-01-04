@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ファイル一覧</title>
+  </head>
+  <body>
+    <h1>ファイル一覧</h1>
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      th:action="@{/file}"
+      th:object="${form}"
+    >
+      <table border="1">
+        <thead>
+          <tr>
+            <th hidden></th>
+            <th>ファイル種別</th>
+            <th>アップロード済みファイル</th>
+            <th>←を削除</th>
+            <th>アップロードするファイル</th>
+            <th>←をクリア</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="formFile, stat: *{formFiles}">
+            <td hidden>
+              <input
+                type="text"
+                th:field="*{formFiles[__${stat.index}__].typeId}"
+              />
+            </td>
+            <td th:text="${fileTypeIdToFileTypeName[formFile.typeId]}"></td>
+            <td>
+              <a
+                th:if="${fileTypeIdToFile[formFile.typeId] != null}"
+                th:text="${fileTypeIdToFile[formFile.typeId].NAME}"
+                th:href="@{/file/{type_id}(type_id=${formFile.typeId})}"
+              ></a>
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                th:field="*{formFiles[__${stat.index}__].isDeleted}"
+              />
+            </td>
+            <td>
+              <input
+                type="file"
+                th:field="*{formFiles[__${stat.index}__].multipartFile}"
+                th:id="${'file-update-form__file-' + stat.index}"
+              />
+            </td>
+            <td>
+              <input
+                type="button"
+                value="クリア"
+                class="file-update-form__clear-button"
+                th:data-for="${'file-update-form__file-' + stat.index}"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <input type="submit" value="更新" />
+    </form>
+    <script type="text/javascript">
+      let clearButtons = document.querySelectorAll(
+        ".file-update-form__clear-button"
+      );
+      clearButtons.forEach((clearButton) => {
+        clearButton.addEventListener("click", (event) => {
+          let targetId = event.currentTarget.dataset.for;
+          let target = document.getElementById(targetId);
+          target.value = "";
+        });
+      });
+    </script>
+  </body>
+</html>
